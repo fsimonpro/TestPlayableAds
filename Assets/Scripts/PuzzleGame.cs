@@ -85,13 +85,18 @@ public class PuzzleGame : MonoBehaviour
     void Awake()
     {
         Application.targetFrameRate = 60;
+        // Police assignée dans la scène. Luna n'implémente pas GetBuiltinResource : repli éditeur uniquement.
+#if !UNITY_LUNA
         if (font == null) font = (Font)Resources.GetBuiltinResource(typeof(Font), "LegacyRuntime.ttf");
+#endif
+        if (font == null) Debug.LogError("[PuzzleGame] Font not assigned in the scene.");
         BuildUI();
         NewGame();
     }
 
     void LateUpdate()
     {
+        if (canvasRect == null) return;
         if (canvasRect.rect.size != lastCanvasSize || Screen.width != lastScreenW || Screen.height != lastScreenH)
             Layout();
     }
