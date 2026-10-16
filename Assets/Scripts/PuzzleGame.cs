@@ -8,18 +8,29 @@ public class PuzzleGame : MonoBehaviour
 {
     const int Size = 4;
     const int Count = Size * Size;
-    const int ShuffleMoves = 40;
     const float SlideTime = 0.09f;
 
     static readonly Color BgColor = new Color32(0x1E, 0x22, 0x30, 0xFF);
     static readonly Color BoardColor = new Color32(0x2C, 0x32, 0x46, 0xFF);
-    static readonly Color TileColor = new Color32(0xF2, 0xA6, 0x3B, 0xFF);
     static readonly Color TileTextColor = new Color32(0x2A, 0x1A, 0x05, 0xFF);
-    static readonly Color CtaColor = new Color32(0x3B, 0xC1, 0x6E, 0xFF);
 
     // board[index] = valeur de la tuile (0 = case vide), index = ligne * Size + colonne
     readonly int[] board = new int[Count];
     readonly RectTransform[] tiles = new RectTransform[Count];
+
+    // Réglables depuis le Luna Playground pour tester des variantes.
+#if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
+    [LunaPlaygroundField("Coups de mélange", 1, "Gameplay")]
+#endif
+    [SerializeField] int shuffleMoves = 40;
+#if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
+    [LunaPlaygroundField("Couleur des tuiles", 2, "Apparence")]
+#endif
+    [SerializeField] Color tileColor = new Color32(0xF2, 0xA6, 0x3B, 0xFF);
+#if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
+    [LunaPlaygroundField("Couleur du bouton", 3, "Apparence")]
+#endif
+    [SerializeField] Color ctaColor = new Color32(0x3B, 0xC1, 0x6E, 0xFF);
 
     [SerializeField] Font font;
     CanvasScaler scaler;
@@ -30,7 +41,10 @@ public class PuzzleGame : MonoBehaviour
     Rect lastSafeArea;
     int lastScreenW, lastScreenH;
     float cell;
-    int moves;
+    int moves, replays;
+    // Événements Luna déjà envoyés pendant la partie en cours (une seule fois chacun).
+    readonly bool[] rowLogged = new bool[Size];
+    bool invalidTapLogged, multiSlideLogged;
     bool busy, won;
 
     void Awake()
@@ -57,7 +71,7 @@ public class PuzzleGame : MonoBehaviour
         // Mélange par coups valides depuis l'état résolu : la grille est toujours soluble.
         int empty = Count - 1, previous = -1;
         int[] neighbours = new int[4];
-        for (int m = 0; m < ShuffleMoves || IsSolved(); m++)
+        for (int m = 0; m < shuffleMoves || IsSolved(); m++)
         {
             int n = 0, r = empty / Size, c = empty % Size;
             if (r > 0) neighbours[n++] = empty - Size;
@@ -74,10 +88,18 @@ public class PuzzleGame : MonoBehaviour
 
         moves = 0;
         won = false;
+        invalidTapLogged = multiSlideLogged = false;
+        for (int r = 0; r < Size; r++) rowLogged[r] = false;
         busy = false;
         endCard.gameObject.SetActive(false);
         UpdateHeader();
         PlaceTiles();
+    }
+
+    void Replay()
+    {
+        PlayableCta.LevelRetry(++replays);
+        NewGame();
     }
 
     void OnTile(int value)
@@ -91,7 +113,12 @@ public class PuzzleGame : MonoBehaviour
     {
         int t = IndexOf(value), e = IndexOf(0);
         int tr = t / Size, tc = t % Size, er = e / Size, ec = e % Size;
-        if (tr != er && tc != ec) yield break;
+        if (tr != er && tc != ec)
+        {
+            if (!invalidTapLogged) PlayableCta.InvalidTap(moves);
+            invalidTapLogged = true;
+            yield break;
+        }
 
         busy = true;
         int step = tr == er ? (tc > ec ? 1 : -1) : (tr > er ? Size : -Size);
@@ -108,7 +135,10 @@ public class PuzzleGame : MonoBehaviour
             count++;
             e = n;
         }
-        moves++;
+        if (moves++ == 0) PlayableCta.FirstMove();
+        if (moves == 10 || moves == 20 || moves == 50) PlayableCta.MovesReached(moves);
+        if (count > 1 && !multiSlideLogged) PlayableCta.MultiTileSlide(count);
+        multiSlideLogged |= count > 1;
         UpdateHeader();
 
         for (float k = 0f; k < 1f; k += Time.deltaTime / SlideTime)
@@ -121,6 +151,7 @@ public class PuzzleGame : MonoBehaviour
         PlaceTiles();
         busy = false;
 
+        LogCompletedRows();
         if (IsSolved()) Win();
     }
 
@@ -129,7 +160,32 @@ public class PuzzleGame : MonoBehaviour
         won = true;
         endText.text = "Bravo !\nRésolu en " + moves + " coups";
         endCard.gameObject.SetActive(true);
-        PlayableCta.GameEnd();
+        PlayableCta.LevelWon(moves);
+    }
+
+    // "row_1_complete" etc. : envoyé la première fois qu'une ligne est entièrement en place.
+    void LogCompletedRows()
+    {
+        for (int r = 0; r < Size - 1; r++)
+        {
+            if (rowLogged[r]) continue;
+            bool done = true;
+            for (int c = 0; c < Size; c++)
+                if (board[r * Size + c] != r * Size + c + 1) done = false;
+            if (!done) continue;
+            rowLogged[r] = true;
+            PlayableCta.RowComplete(r + 1, moves);
+        }
+    }
+
+    void OnCtaInGame()
+    {
+        PlayableCta.CtaInGame(moves);
+    }
+
+    void OnCtaEndCard()
+    {
+        PlayableCta.CtaEndCard(moves);
     }
 
     int IndexOf(int value)
@@ -175,14 +231,14 @@ public class PuzzleGame : MonoBehaviour
         for (int v = 1; v < Count; v++)
         {
             int value = v;
-            var button = MakeButton(boardRect, value.ToString(), TileColor, TileTextColor, () => OnTile(value));
+            var button = MakeButton(boardRect, value.ToString(), tileColor, TileTextColor, () => OnTile(value));
             tiles[v] = (RectTransform)button.transform;
         }
 
         header = NewRect("Header", safeRect);
         headerText = AddText(header, "", Color.white);
 
-        cta = (RectTransform)MakeButton(safeRect, "TÉLÉCHARGER", CtaColor, Color.white, PlayableCta.OpenStore).transform;
+        cta = (RectTransform)MakeButton(safeRect, "TÉLÉCHARGER", ctaColor, Color.white, OnCtaInGame).transform;
 
         endCard = NewRect("EndCard", canvasRect);
         Stretch(endCard);
@@ -190,8 +246,8 @@ public class PuzzleGame : MonoBehaviour
         endSafeRect = NewRect("SafeArea", endCard);
         endTextRect = NewRect("EndText", endSafeRect);
         endText = AddText(endTextRect, "", Color.white);
-        install = (RectTransform)MakeButton(endSafeRect, "TÉLÉCHARGER", CtaColor, Color.white, PlayableCta.OpenStore).transform;
-        replay = (RectTransform)MakeButton(endSafeRect, "Rejouer", BoardColor, Color.white, NewGame).transform;
+        install = (RectTransform)MakeButton(endSafeRect, "TÉLÉCHARGER", ctaColor, Color.white, OnCtaEndCard).transform;
+        replay = (RectTransform)MakeButton(endSafeRect, "Rejouer", BoardColor, Color.white, Replay).transform;
     }
 
     // Toutes les tailles sont proportionnelles à la safe area.
