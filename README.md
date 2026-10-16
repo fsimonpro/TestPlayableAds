@@ -2,7 +2,10 @@
 
 Technical test of a Unity playable ad: a simple sliding puzzle (taquin) exported with the **Unity Playworks (Luna) plugin**.
 
-**Live preview:** [Luna Playground](https://playground.lunalabs.io/preview/532306/740883/bb3372790558fa1e13944dc60c9bbba148debc2d1669a3979b17ed7a6247a5fe)
+**Live previews (Luna Playground):**
+
+- [3x3 grid (default)](https://playground.lunalabs.io/preview/532306/740883/bb3372790558fa1e13944dc60c9bbba148debc2d1669a3979b17ed7a6247a5fe)
+- [2x2 grid](https://playground.lunalabs.io/preview/532306/741369/bb3372790558fa1e13944dc60c9bbba148debc2d1669a3979b17ed7a6247a5fe)
 
 - Unity **2022.3.62f3**, uGUI only, no external assets loaded at runtime
 - Touch and mouse input, portrait and landscape layouts, safe-area aware
@@ -40,7 +43,7 @@ The `LUNA_IS_PRESENT` define is set in both the Player Settings and `luna.json`;
 
 ## Text rendering
 
-Luna rasterizes fonts into a bitmap atlas. To keep text sharp without a large atlas, `luna.json` uses 160 px glyphs in a 1024×1024 atlas and an alphabet restricted to the characters the game displays. **When changing an in-game text, add any new character to the font alphabet** (Unity Playworks window → Fonts), otherwise it will not render. Text size relative to its container is set by `TextScale` in `PuzzleGame.cs`.
+Luna rasterizes fonts into a bitmap atlas. To keep text sharp without a large atlas, `luna.json` uses 160 px glyphs in a 1024×1024 atlas and an alphabet restricted to the characters the game displays. **When changing an in-game text, add any new character to the font alphabet** (Unity Playworks window → Fonts), otherwise it will not render. Text size relative to its container is set by `TextScale` (tiles, Replay, footer) and `HeadlineScale` (title / move counter, DOWNLOAD buttons) in `PuzzleGame.cs`.
 
 ## Playground fields
 
