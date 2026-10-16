@@ -14,6 +14,7 @@ public class PuzzleGame : MonoBehaviour
     int Count { get { return Size * Size; } }
     const float SlideTime = 0.09f;
     const float TextScale = 0.75f;
+    const float HeadlineScale = 0.55f; // titre / compteur et boutons DOWNLOAD
 
     // board[index] = valeur de la tuile (0 = case vide), index = ligne * Size + colonne
     readonly int[] board = new int[MaxSize * MaxSize];
@@ -70,7 +71,7 @@ public class PuzzleGame : MonoBehaviour
     [SerializeField] Sprite buttonSprite;
     [SerializeField] Font font;
     CanvasScaler scaler;
-    RectTransform canvasRect, safeRect, boardRect, header, cta;
+    RectTransform canvasRect, safeRect, boardRect, header, cta, footer;
     RectTransform endCard, endSafeRect, endTextRect, install, replay;
     Text headerText, endText;
     Vector2 lastCanvasSize;
@@ -245,7 +246,7 @@ public class PuzzleGame : MonoBehaviour
 
     void UpdateHeader()
     {
-        headerText.text = moves == 0 ? "Put the numbers\nin order!" : "Moves: " + moves;
+        headerText.text = moves == 0 ? "Put the numbers in order!" : "Moves: " + moves;
     }
 
     // ---------- Interface ----------
@@ -279,9 +280,12 @@ public class PuzzleGame : MonoBehaviour
         }
 
         header = NewRect("Header", safeRect);
-        headerText = AddText(header, "", titleColor);
+        headerText = AddText(header, "", titleColor, HeadlineScale);
 
-        cta = (RectTransform)MakeButton(safeRect, "DOWNLOAD", buttonSprite, ctaColor, ctaTextColor, OnCtaInGame).transform;
+        footer = NewRect("Footer", safeRect);
+        AddText(footer, "Technical Test from Fabien SIMON", new Color(titleColor.r, titleColor.g, titleColor.b, 0.5f));
+
+        cta = (RectTransform)MakeButton(safeRect, "DOWNLOAD", buttonSprite, ctaColor, ctaTextColor, OnCtaInGame, HeadlineScale).transform;
 
         endCard = NewRect("EndCard", canvasRect);
         Stretch(endCard);
@@ -289,7 +293,7 @@ public class PuzzleGame : MonoBehaviour
         endSafeRect = NewRect("SafeArea", endCard);
         endTextRect = NewRect("EndText", endSafeRect);
         endText = AddText(endTextRect, "", titleColor);
-        install = (RectTransform)MakeButton(endSafeRect, "DOWNLOAD", buttonSprite, ctaColor, ctaTextColor, OnCtaEndCard).transform;
+        install = (RectTransform)MakeButton(endSafeRect, "DOWNLOAD", buttonSprite, ctaColor, ctaTextColor, OnCtaEndCard, HeadlineScale).transform;
         replay = (RectTransform)MakeButton(endSafeRect, "Replay", buttonSprite, replayColor, ctaTextColor, Replay).transform;
     }
 
@@ -337,6 +341,11 @@ public class PuzzleGame : MonoBehaviour
         }
 
         boardRect.sizeDelta = new Vector2(side, side);
+
+        // Mention discrète en bas : centrée en portrait, sous le panneau de droite en paysage.
+        float footerH = s.y * 0.03f;
+        footer.sizeDelta = new Vector2(s.y >= s.x ? s.x * 0.9f : s.x - side - s.y * 0.15f, footerH);
+        footer.anchoredPosition = new Vector2(s.y >= s.x ? 0f : (s.y * 0.05f + side) / 2f, -s.y / 2f + footerH);
         cell = side / Size;
         PlaceTiles();
 
@@ -400,12 +409,12 @@ public class PuzzleGame : MonoBehaviour
         return image;
     }
 
-    Text AddText(RectTransform parent, string value, Color color)
+    Text AddText(RectTransform parent, string value, Color color, float scale = TextScale)
     {
         var rt = NewRect("Text", parent);
         Stretch(rt);
         // Zone de texte réduite et centrée : le best fit donne un texte TextScale fois plus petit.
-        float inset = (1f - TextScale) / 2f;
+        float inset = (1f - scale) / 2f;
         rt.anchorMin = new Vector2(inset, inset);
         rt.anchorMax = new Vector2(1f - inset, 1f - inset);
         var text = rt.gameObject.AddComponent<Text>();
@@ -421,7 +430,7 @@ public class PuzzleGame : MonoBehaviour
         return text;
     }
 
-    Button MakeButton(RectTransform parent, string label, Sprite sprite, Color color, Color labelColor, UnityEngine.Events.UnityAction onClick)
+    Button MakeButton(RectTransform parent, string label, Sprite sprite, Color color, Color labelColor, UnityEngine.Events.UnityAction onClick, float textScale = TextScale)
     {
         var rt = NewRect(label, parent);
         var button = rt.gameObject.AddComponent<Button>();
@@ -429,7 +438,7 @@ public class PuzzleGame : MonoBehaviour
         image.sprite = sprite;
         button.targetGraphic = image;
         button.onClick.AddListener(onClick);
-        var text = AddText(rt, label, labelColor);
+        var text = AddText(rt, label, labelColor, textScale);
         ((RectTransform)text.transform).sizeDelta = new Vector2(-16, -16);
         return button;
     }

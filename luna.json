@@ -28878,7 +28878,7 @@
             "font": {
                 "default": {
                     "data": {
-                        "alphabet": " !',-.0123456789:?ADLMNOPRSWabdehilmnoprstuvy",
+                        "alphabet": " !',-.0123456789:?ADFILMNOPRSTWabcdefhilmnoprstuvy ",
                         "size": 160,
                         "textureWidth": 1024,
                         "textureHeight": 1024
