@@ -3,22 +3,30 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-// Taquin 4x4 dont l'interface est construite par code : seul ce composant est posé dans la scène.
+// Taquin 2x2, 3x3 ou 4x4 (réglable dans le Playground) dont l'interface est construite par code : seul ce composant est posé dans la scène.
 public class PuzzleGame : MonoBehaviour
 {
-    const int Size = 4;
-    const int Count = Size * Size;
+    // Valeurs par défaut 0..n (comme les enums du tuto Luna) : la taille vaut index + 2.
+    enum GridSize { Grid2x2, Grid3x3, Grid4x4 }
+    const int MaxSize = 4;
+
+    int Size { get { return Mathf.Clamp((int)gridSize + 2, 2, MaxSize); } }
+    int Count { get { return Size * Size; } }
     const float SlideTime = 0.09f;
 
     // board[index] = valeur de la tuile (0 = case vide), index = ligne * Size + colonne
-    readonly int[] board = new int[Count];
-    readonly RectTransform[] tiles = new RectTransform[Count];
+    readonly int[] board = new int[MaxSize * MaxSize];
+    readonly RectTransform[] tiles = new RectTransform[MaxSize * MaxSize];
 
     // Réglables depuis le Luna Playground pour tester des variantes.
 #if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
     [LunaPlaygroundField("Shuffle moves", 1, "Gameplay")]
 #endif
-    [SerializeField] int shuffleMoves = 40;
+    [SerializeField] int shuffleMoves = 20;
+#if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
+    [LunaPlaygroundField("Grid size", 2, "Gameplay")]
+#endif
+    [SerializeField] GridSize gridSize = GridSize.Grid3x3;
 #if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
     [LunaPlaygroundField("Background", 1, "Appearance")]
 #endif
@@ -70,7 +78,7 @@ public class PuzzleGame : MonoBehaviour
     float cell;
     int moves, replays;
     // Événements Luna déjà envoyés pendant la partie en cours (une seule fois chacun).
-    readonly bool[] rowLogged = new bool[Size];
+    readonly bool[] rowLogged = new bool[MaxSize];
     bool invalidTapLogged, multiSlideLogged;
     bool busy, won;
 
