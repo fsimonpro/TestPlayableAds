@@ -1,8 +1,8 @@
 {
     "version": "7.2.0",
     "projectId": "c128564c28b0a9d4c96a5059bc653bcc",
-    "applicationID": 43585,
-    "creativeName": "",
+    "applicationID": 0,
+    "creativeName": "Taquinv1",
     "pgServer": "EU",
     "window": {
         "‐⁘": true
@@ -28878,8 +28878,8 @@
             "font": {
                 "default": {
                     "data": {
-                        "alphabet": " §1234567890-=qwertyuiop[]asdfghjkl;'\\`zxcvbnm,./±!@#$%^&*()_+QWERTYUIOP{}ASDFGHJKL:\"|~ZXCVBNM<>?àâäæçéèêëîïôöœùûüÿÀÂÄÆÇÉÈÊËÎÏÔÖŒÙÛÜŸ«»’€ ",
-                        "size": 64,
+                        "alphabet": " !',-.0123456789:?ADLMNOPRSWabdehilmnoprstuvy",
+                        "size": 160,
                         "textureWidth": 1024,
                         "textureHeight": 1024
                     }

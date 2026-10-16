@@ -13,6 +13,7 @@ public class PuzzleGame : MonoBehaviour
     int Size { get { return Mathf.Clamp((int)gridSize + 2, 2, MaxSize); } }
     int Count { get { return Size * Size; } }
     const float SlideTime = 0.09f;
+    const float TextScale = 0.75f;
 
     // board[index] = valeur de la tuile (0 = case vide), index = ligne * Size + colonne
     readonly int[] board = new int[MaxSize * MaxSize];
@@ -403,6 +404,10 @@ public class PuzzleGame : MonoBehaviour
     {
         var rt = NewRect("Text", parent);
         Stretch(rt);
+        // Zone de texte réduite et centrée : le best fit donne un texte TextScale fois plus petit.
+        float inset = (1f - TextScale) / 2f;
+        rt.anchorMin = new Vector2(inset, inset);
+        rt.anchorMax = new Vector2(1f - inset, 1f - inset);
         var text = rt.gameObject.AddComponent<Text>();
         text.font = font;
         text.text = value;
