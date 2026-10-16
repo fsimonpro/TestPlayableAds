@@ -16,43 +16,43 @@ public class PuzzleGame : MonoBehaviour
 
     // Réglables depuis le Luna Playground pour tester des variantes.
 #if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
-    [LunaPlaygroundField("Coups de mélange", 1, "Gameplay")]
+    [LunaPlaygroundField("Shuffle moves", 1, "Gameplay")]
 #endif
     [SerializeField] int shuffleMoves = 40;
 #if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
-    [LunaPlaygroundField("Fond", 1, "Apparence")]
+    [LunaPlaygroundField("Background", 1, "Appearance")]
 #endif
     [SerializeField] Color backgroundColor = new Color32(0x1E, 0x22, 0x30, 0xFF);
 #if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
-    [LunaPlaygroundField("Plateau", 2, "Apparence")]
+    [LunaPlaygroundField("Board", 2, "Appearance")]
 #endif
     [SerializeField] Color boardColor = new Color32(0x2C, 0x32, 0x46, 0xFF);
 #if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
-    [LunaPlaygroundField("Tuiles", 3, "Apparence")]
+    [LunaPlaygroundField("Tiles", 3, "Appearance")]
 #endif
     [SerializeField] Color tileColor = new Color32(0xF2, 0xA6, 0x3B, 0xFF);
 #if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
-    [LunaPlaygroundField("Chiffres des tuiles", 4, "Apparence")]
+    [LunaPlaygroundField("Tile numbers", 4, "Appearance")]
 #endif
     [SerializeField] Color tileTextColor = new Color32(0x2A, 0x1A, 0x05, 0xFF);
 #if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
-    [LunaPlaygroundField("Titre", 5, "Apparence")]
+    [LunaPlaygroundField("Title", 5, "Appearance")]
 #endif
     [SerializeField] Color titleColor = Color.white;
 #if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
-    [LunaPlaygroundField("Bouton Télécharger", 6, "Apparence")]
+    [LunaPlaygroundField("Download button", 6, "Appearance")]
 #endif
     [SerializeField] Color ctaColor = new Color32(0x3B, 0xC1, 0x6E, 0xFF);
 #if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
-    [LunaPlaygroundField("Texte du bouton", 7, "Apparence")]
+    [LunaPlaygroundField("Button text", 7, "Appearance")]
 #endif
     [SerializeField] Color ctaTextColor = Color.white;
 #if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
-    [LunaPlaygroundField("Bouton Rejouer", 8, "Apparence")]
+    [LunaPlaygroundField("Replay button", 8, "Appearance")]
 #endif
     [SerializeField] Color replayColor = new Color32(0x4A, 0x55, 0x75, 0xFF);
 #if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
-    [LunaPlaygroundField("Voile de fin", 9, "Apparence")]
+    [LunaPlaygroundField("End overlay", 9, "Appearance")]
 #endif
     [SerializeField] Color overlayColor = new Color(0f, 0f, 0f, 0.8f);
 
@@ -185,7 +185,7 @@ public class PuzzleGame : MonoBehaviour
     void Win()
     {
         won = true;
-        endText.text = "Bravo !\nRésolu en " + moves + " coups";
+        endText.text = "Well done!\nSolved in " + moves + " moves";
         endCard.gameObject.SetActive(true);
         PlayableCta.LevelWon(moves);
     }
@@ -231,7 +231,7 @@ public class PuzzleGame : MonoBehaviour
 
     void UpdateHeader()
     {
-        headerText.text = moves == 0 ? "Remets les chiffres\ndans l'ordre !" : "Coups : " + moves;
+        headerText.text = moves == 0 ? "Put the numbers\nin order!" : "Moves: " + moves;
     }
 
     // ---------- Interface ----------
@@ -267,7 +267,7 @@ public class PuzzleGame : MonoBehaviour
         header = NewRect("Header", safeRect);
         headerText = AddText(header, "", titleColor);
 
-        cta = (RectTransform)MakeButton(safeRect, "TÉLÉCHARGER", buttonSprite, ctaColor, ctaTextColor, OnCtaInGame).transform;
+        cta = (RectTransform)MakeButton(safeRect, "DOWNLOAD", buttonSprite, ctaColor, ctaTextColor, OnCtaInGame).transform;
 
         endCard = NewRect("EndCard", canvasRect);
         Stretch(endCard);
@@ -275,8 +275,8 @@ public class PuzzleGame : MonoBehaviour
         endSafeRect = NewRect("SafeArea", endCard);
         endTextRect = NewRect("EndText", endSafeRect);
         endText = AddText(endTextRect, "", titleColor);
-        install = (RectTransform)MakeButton(endSafeRect, "TÉLÉCHARGER", buttonSprite, ctaColor, ctaTextColor, OnCtaEndCard).transform;
-        replay = (RectTransform)MakeButton(endSafeRect, "Rejouer", buttonSprite, replayColor, ctaTextColor, Replay).transform;
+        install = (RectTransform)MakeButton(endSafeRect, "DOWNLOAD", buttonSprite, ctaColor, ctaTextColor, OnCtaEndCard).transform;
+        replay = (RectTransform)MakeButton(endSafeRect, "Replay", buttonSprite, replayColor, ctaTextColor, Replay).transform;
     }
 
     // Toutes les tailles sont proportionnelles à la safe area.
@@ -395,7 +395,7 @@ public class PuzzleGame : MonoBehaviour
         text.text = value;
         text.color = color;
         text.alignment = TextAnchor.MiddleCenter;
-        text.fontStyle = FontStyle.Bold;
+        text.fontStyle = FontStyle.Normal;
         text.resizeTextForBestFit = true;
         text.resizeTextMinSize = 10;
         text.resizeTextMaxSize = 300;

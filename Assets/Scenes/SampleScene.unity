@@ -153,7 +153,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileSprite: {fileID: 21300000, guid: eb8bdd8c1b09e1f8215c232fed0103bf, type: 3}
   buttonSprite: {fileID: 21300000, guid: 27f03a18b07b3ce8b8e0e75b7ab0d2fa, type: 3}
-  font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+  font: {fileID: 12800000, guid: 872b950a5b3b8e645ecdbc52676272d4, type: 3}
 --- !u!4 &277278179
 Transform:
   m_ObjectHideFlags: 0
