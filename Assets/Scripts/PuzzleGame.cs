@@ -10,10 +10,6 @@ public class PuzzleGame : MonoBehaviour
     const int Count = Size * Size;
     const float SlideTime = 0.09f;
 
-    static readonly Color BgColor = new Color32(0x1E, 0x22, 0x30, 0xFF);
-    static readonly Color BoardColor = new Color32(0x2C, 0x32, 0x46, 0xFF);
-    static readonly Color TileTextColor = new Color32(0x2A, 0x1A, 0x05, 0xFF);
-
     // board[index] = valeur de la tuile (0 = case vide), index = ligne * Size + colonne
     readonly int[] board = new int[Count];
     readonly RectTransform[] tiles = new RectTransform[Count];
@@ -24,14 +20,45 @@ public class PuzzleGame : MonoBehaviour
 #endif
     [SerializeField] int shuffleMoves = 40;
 #if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
-    [LunaPlaygroundField("Couleur des tuiles", 2, "Apparence")]
+    [LunaPlaygroundField("Fond", 1, "Apparence")]
+#endif
+    [SerializeField] Color backgroundColor = new Color32(0x1E, 0x22, 0x30, 0xFF);
+#if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
+    [LunaPlaygroundField("Plateau", 2, "Apparence")]
+#endif
+    [SerializeField] Color boardColor = new Color32(0x2C, 0x32, 0x46, 0xFF);
+#if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
+    [LunaPlaygroundField("Tuiles", 3, "Apparence")]
 #endif
     [SerializeField] Color tileColor = new Color32(0xF2, 0xA6, 0x3B, 0xFF);
 #if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
-    [LunaPlaygroundField("Couleur du bouton", 3, "Apparence")]
+    [LunaPlaygroundField("Chiffres des tuiles", 4, "Apparence")]
+#endif
+    [SerializeField] Color tileTextColor = new Color32(0x2A, 0x1A, 0x05, 0xFF);
+#if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
+    [LunaPlaygroundField("Titre", 5, "Apparence")]
+#endif
+    [SerializeField] Color titleColor = Color.white;
+#if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
+    [LunaPlaygroundField("Bouton Télécharger", 6, "Apparence")]
 #endif
     [SerializeField] Color ctaColor = new Color32(0x3B, 0xC1, 0x6E, 0xFF);
+#if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
+    [LunaPlaygroundField("Texte du bouton", 7, "Apparence")]
+#endif
+    [SerializeField] Color ctaTextColor = Color.white;
+#if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
+    [LunaPlaygroundField("Bouton Rejouer", 8, "Apparence")]
+#endif
+    [SerializeField] Color replayColor = new Color32(0x4A, 0x55, 0x75, 0xFF);
+#if LUNA_IS_PRESENT || LUNA_EDITOR_SOURCES
+    [LunaPlaygroundField("Voile de fin", 9, "Apparence")]
+#endif
+    [SerializeField] Color overlayColor = new Color(0f, 0f, 0f, 0.8f);
 
+    // Sprites blancs arrondis à dégradé vertical, teintés par les couleurs ci-dessus.
+    [SerializeField] Sprite tileSprite;
+    [SerializeField] Sprite buttonSprite;
     [SerializeField] Font font;
     CanvasScaler scaler;
     RectTransform canvasRect, safeRect, boardRect, header, cta;
@@ -223,31 +250,33 @@ public class PuzzleGame : MonoBehaviour
         scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
         canvasRect = (RectTransform)canvasGo.transform;
 
-        Stretch(AddImage(NewRect("Background", canvasRect), BgColor).rectTransform);
+        Stretch(AddImage(NewRect("Background", canvasRect), backgroundColor).rectTransform);
 
         // Tout le contenu vit dans la safe area (encoches, barres système).
         safeRect = NewRect("SafeArea", canvasRect);
-        boardRect = AddImage(NewRect("Board", safeRect), BoardColor).rectTransform;
+        var boardImage = AddImage(NewRect("Board", safeRect), boardColor);
+        boardImage.sprite = tileSprite;
+        boardRect = boardImage.rectTransform;
         for (int v = 1; v < Count; v++)
         {
             int value = v;
-            var button = MakeButton(boardRect, value.ToString(), tileColor, TileTextColor, () => OnTile(value));
+            var button = MakeButton(boardRect, value.ToString(), tileSprite, tileColor, tileTextColor, () => OnTile(value));
             tiles[v] = (RectTransform)button.transform;
         }
 
         header = NewRect("Header", safeRect);
-        headerText = AddText(header, "", Color.white);
+        headerText = AddText(header, "", titleColor);
 
-        cta = (RectTransform)MakeButton(safeRect, "TÉLÉCHARGER", ctaColor, Color.white, OnCtaInGame).transform;
+        cta = (RectTransform)MakeButton(safeRect, "TÉLÉCHARGER", buttonSprite, ctaColor, ctaTextColor, OnCtaInGame).transform;
 
         endCard = NewRect("EndCard", canvasRect);
         Stretch(endCard);
-        AddImage(endCard, new Color(0f, 0f, 0f, 0.8f));
+        AddImage(endCard, overlayColor);
         endSafeRect = NewRect("SafeArea", endCard);
         endTextRect = NewRect("EndText", endSafeRect);
-        endText = AddText(endTextRect, "", Color.white);
-        install = (RectTransform)MakeButton(endSafeRect, "TÉLÉCHARGER", ctaColor, Color.white, OnCtaEndCard).transform;
-        replay = (RectTransform)MakeButton(endSafeRect, "Rejouer", BoardColor, Color.white, Replay).transform;
+        endText = AddText(endTextRect, "", titleColor);
+        install = (RectTransform)MakeButton(endSafeRect, "TÉLÉCHARGER", buttonSprite, ctaColor, ctaTextColor, OnCtaEndCard).transform;
+        replay = (RectTransform)MakeButton(endSafeRect, "Rejouer", buttonSprite, replayColor, ctaTextColor, Replay).transform;
     }
 
     // Toutes les tailles sont proportionnelles à la safe area.
@@ -374,11 +403,13 @@ public class PuzzleGame : MonoBehaviour
         return text;
     }
 
-    Button MakeButton(RectTransform parent, string label, Color color, Color labelColor, UnityEngine.Events.UnityAction onClick)
+    Button MakeButton(RectTransform parent, string label, Sprite sprite, Color color, Color labelColor, UnityEngine.Events.UnityAction onClick)
     {
         var rt = NewRect(label, parent);
         var button = rt.gameObject.AddComponent<Button>();
-        button.targetGraphic = AddImage(rt, color);
+        var image = AddImage(rt, color);
+        image.sprite = sprite;
+        button.targetGraphic = image;
         button.onClick.AddListener(onClick);
         var text = AddText(rt, label, labelColor);
         ((RectTransform)text.transform).sizeDelta = new Vector2(-16, -16);
