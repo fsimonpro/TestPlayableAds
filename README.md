@@ -61,6 +61,12 @@ Luna rasterizes fonts into a bitmap atlas. To keep text sharp without a large at
 
 Store URLs (iOS / Android) are set in the Luna Playground, not in code.
 
+### Editing the playable in the Luna Playground
+
+Once the build is uploaded, each variant is a **creative** in the Playground editor (here `2x2`, from the `Taquinv1` build). The fields above are grouped by section in the left panel and edited on the right; the preview updates live, and **Save Creative** stores the variant without rebuilding in Unity. The 2x2 preview linked at the top is this creative: grid size set to `Grid2x2`, 3 shuffle moves and purple tiles.
+
+<img src="docs/playground-editor.png" width="640" alt="Luna Playground editor with the 2x2 creative">
+
 ## Analytics events
 
 Standard: `TutorialComplete` (first move), `LevelWon`, `EndCardShown`, `LevelRetry`.
