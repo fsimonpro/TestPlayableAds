@@ -9,6 +9,10 @@ Technical test of a Unity playable ad: a simple sliding puzzle (taquin) exported
 
 Both previews run the **same build**: only the Playground fields differ (grid size, tile color). This is how a playable is iterated on without rebuilding, e.g. to A/B test difficulty or visuals per ad network. See [Playground fields](#playground-fields).
 
+| 3x3 (default) | 2x2, purple tiles |
+|:---:|:---:|
+| <img src="docs/preview-3x3.jpg" width="400" alt="3x3 grid preview"> | <img src="docs/preview-2x2.jpg" width="400" alt="2x2 grid preview"> |
+
 - Unity **2022.3.62f3**, uGUI only, no external assets loaded at runtime
 - Touch and mouse input, portrait and landscape layouts, safe-area aware
 - Grid size **2x2 / 3x3 / 4x4** (3x3 by default), shuffle difficulty and all colors tweakable from the Luna Playground
