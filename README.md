@@ -11,7 +11,7 @@ Both previews run the **same build**: only the Playground fields differ (grid si
 
 | 3x3 (default) | 2x2, purple tiles |
 |:---:|:---:|
-| <img src="docs/preview-3x3.jpg" width="260" alt="3x3 grid preview"> | <img src="docs/preview-2x2.jpg" width="260" alt="2x2 grid preview"> |
+| <img src="docs/preview-3x3-portrait.jpg" width="260" alt="3x3 grid preview"> | <img src="docs/preview-2x2-portrait.jpg" width="260" alt="2x2 grid preview"> |
 
 - Unity **2022.3.62f3**, uGUI only, no external assets loaded at runtime
 - Touch and mouse input, portrait and landscape layouts, safe-area aware
